@@ -203,6 +203,7 @@ foreach(var number in GetNumbersUntil(5)) {
 
 Output:
 ```
+0
 1
 2
 3
@@ -426,6 +427,8 @@ int IndexOf(T item);
 void Remove(T item);
 // adds multiple items to this list at once.
 void AddRange(IEnumerable<T> items);
+// gets the iterator for this collection. Used by IEnumerator to support foreach.
+IEnumerator<T>.GetEnumerator();
 ```
 
 ## Remarks
