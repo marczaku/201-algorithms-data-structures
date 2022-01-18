@@ -430,11 +430,12 @@ void Add(T item);
 // gets the item at the specified index. If the index is outside the correct range, an exception is thrown.
 T Get(int index);
 // replaces the item at the specified index. If the index is outside the correct range, an exception is thrown.
-T Set(int index, T value);
+void Set(int index, T value);
 // removes all items from the list.
 void Clear();
 // removes one item from the list. If the 4th item is removed, then the 5th item becomes the 4th, the 6th becomes the 5th and so on.
 void RemoveAt(int index);
+// --------------- optional ---------------
 // returns true, if the given item can be found in the list, else false.
 bool Contains(T item);
 // returns the index of the given item if it is in the list, else -1.
@@ -443,6 +444,7 @@ int IndexOf(T item);
 void Remove(T item);
 // adds multiple items ad the end of this list at once. Works similar to Add.
 void AddRange(IEnumerable<T> items);
+// --------------- important, but difficult ---------------
 // gets the iterator for this collection. Used by IEnumerable<T>-Interface to support foreach.
 IEnumerator<T> IEnumerable<T>.GetEnumerator();
 ```
@@ -877,6 +879,7 @@ public class Logger : IDisposable
 {
     private readonly FileStream fileStream;
     private readonly StreamWriter streamWriter;
+    bool disposed;
 
     public Logger()
     {
@@ -943,6 +946,7 @@ T Peek();
 T Pop();
 // removes all items from the stack.
 void Clear();
+// --------------- optional ---------------
 // gets the iterator for this collection. Used by IEnumerable<T>-Interface to support foreach.
 IEnumerator<T> IEnumerable<T>.GetEnumerator();
 ```
