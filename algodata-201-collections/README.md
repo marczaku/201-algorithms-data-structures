@@ -1001,6 +1001,168 @@ Use a Stack to keep track of the History.
 
 ---
 
+# Extension Methods
+
+Imagine you were using this class from a Library:
+
+```cs
+public class Person {
+    public DateTime BirthDate;
+}
+```
+
+What you'd like to know is a Person's age. You could write a Method for this and use it like this:
+
+```cs
+int GetAgeForPerson(Person person){
+    // this is by the way not exact. Why?
+    return (DateTime.Now-person.BirthDate)/365;
+}
+
+Person person = GetSomePerson();
+Console.WriteLine("Age: " + GetAgeForPerson(person));
+```
+
+Okay, this looks just fine. But now, you need this method in another place of your code as well. Maybe, above sample was in the Shop to verify the User's Age and the other place is in the User Profile, to display the User's Age. It's about time to avoid Code Duplication and put it into a static class:
+
+```cs
+public static class PersonMethods {
+    int GetAgeForPerson(Person person){
+        // this is by the way not exact. Why?
+        return (DateTime.Now-person.BirthDate)/365;
+    }
+}
+```
+
+And now in the other place:
+```cs
+Person person = GetSomePerson();
+Console.WriteLine("Age: " + PersonMethods.GetAgeForPerson(person));
+```
+
+If you want this code a bit more pretty, you can use `using static` to make the `static` Methods available as if they were local Methods:
+
+```cs
+using static PersonMethods;
+Person person = GetSomePerson();
+Console.WriteLine("Age: " + GetAgeForPerson(person));
+```
+
+Okay, this works. But the Problem is: It's hard to miss that this method exists. Other people might not know that it exists. Also, it would've been great, if the author just would've thought of adding the Method to the `Person` class right away, so you'd be able to write code like this:
+
+```cs
+Person person = GetSomePerson();
+Console.WriteLine("Age: " + person.GetAge());
+```
+
+Sometimes, you might be able to inherit from the class and add that functionality, but that's often not possible. Luckily, you can extend even existing classes from other people. Restrictions: You can only access `public` Fields and Methods. It works like this:
+
+```cs
+// The class containing extension methods must be static:
+public static class PersonExtensions{
+    // the extension method must be static and use the `this` keyword:
+    public static GetAge(this Person person){
+        return (DateTime.Now-person.BirthDate)/365;
+    }
+}
+```
+
+Now, to all other classes. It will look as if the Method is part of the Person:
+
+```cs
+Person person = GetSomePerson();
+Console.WriteLine("Age: " + person.GetAge());
+```
+
+Again, this is only syntactic sugar. The compiler will change this code to:
+
+```cs
+Person person = GetSomePerson();
+Console.WriteLine("Age: " + PersonExtensions.GetAge(person));
+```
+
+# LINQ
+
+LINQ, or Language-Integrated-Query, is a technology by .NET which allows to handle Collections like Streams and manipulate them in a similar fashion to how you can manipulate Streams by nesting them. Imagine the following case:
+
+```cs
+Animal animals = zoo.GetAnimals();
+
+class Cat : Animal {
+    public string FavoriteFood;
+    public FoodBowl FoodBowl;
+}
+
+class Animal {
+    public bool IsHungry;
+}
+
+class FoodBowl{
+    public void Fill(string food){}
+}
+```
+
+Now, we notice that we have a lot of tuna left. We want to feed the cats, because they've not eaten in a while. But of course, we only want to feed the cats which are Hungry and like Tuna. Because cats are pretty picky, we have learned that the hard way. Also, they have their favorite FoodBowls. Cats are not easy to please.
+
+We could implement it like this:
+
+```cs
+foreach(Animal animal in animals){
+    if(animal.IsHungry){
+        if(animal is Cat cat){
+            if(cat.FavoriteFood == "Tuna"){
+                cat.FoodBowl.Fill("Tuna");
+            }
+        }
+    }
+}
+```
+
+This should work. But what if it's not our Job to actually fill the bowl? We have an assistant that we need to provide with the information, so we should give him a list of all FoodBowls to fill with Tuna:
+
+```cs
+List<FoodBowl> foodBowls = new List<FoodBowl>();
+foreach(Animal animal in animals){
+    if(animal.IsHungry){
+        if(animal is Cat cat){
+            if(cat.FavoriteFood == "Tuna"){
+                foodBowls.Add(cat.FoodBowl);
+            }
+        }
+    }
+}
+assistant.OrderToFill("Tuna", foodBowls);
+```
+
+Neat! But also quite complex. Also, if we have thousands of cats, this will be a very large array again. What if we could Stream the Data to our Assistant? Fact is, we can!
+
+```cs
+IEnumerable<FoodBowl> foodBowls = animals
+    .Where(animal => animal.IsHungry)
+    .OfType<Cat>()
+    .Where(cat => cat.FavoriteFood == "Tuna")
+    .Select(cat => cat.FoodBowl);
+
+assistant.OrderToFill("Tuna", foodBowls);
+```
+
+Pretty cool and expressive, or? And you can do so many more complex things with LINQ: 
+- `Concat`: Combine to Collections
+- `GroupBy`: Group a Collection by some common Property
+- `First`: Get the first item. Exception if none.
+- `FirstOrDefault`: Get the first item. Default if none.
+- `Single`: Get one element for a condition. Exception if not exactly one.
+- `Any`: Returns true, if any item satisfies a condition.
+- `OrderBy`: Sort in ascending order.
+- `OrderByDescending`: Sort in descending order.
+- `ToDictionary`, `ToArray`, `ToList`: Convert to Collection-Type
+- ... and many more.
+
+## Usage:
+- AI: Find all buildings of the player. Filter them by only the ones the AI has discovered. Filter them by the ones that seem not too well defended. Sort them by Priority. Attack the First.
+- Multiplayer: Show Clan-Members. Filter by the ones being online OR being a High Rank. Sort them by Rank.
+
+
 # Type-Introspection
 
 Type-Introspection is an extremely powerful tool that allows your code to work with types that it doesn't even know of. It comes automatically with .NET, is called `System.Reflection` and it provides Type-Information for every single Type and Object Instance of that Type.
@@ -1099,7 +1261,7 @@ True
 True
 ```
 
-This is by the way, how Generic Methods were created before Generic Methods existed:
+This is by the way, how Methods were made Generic before Generic Methods existed:
 
 ```cs
 gameObject.GetComponent(typeof(Health));
@@ -1149,3 +1311,284 @@ void Attack(Unit unit) {
 ```
 
 Now, the Log shows wrong information. There is no parameter named `enemy` anymore. If you use `nameof`, IDEs will actually automatically rename `enemy` to `unit` for you. This is such a useful feature, that I'll always strike you in Code Review, if I see you put the name of a class or field or parameter into a string without using `nameof`.
+
+## Let's Find all Types that Implement `IEnumerable`
+
+```cs
+using System;
+using System.Collections;
+using System.Linq;
+
+var allEnumerableTypes = 
+    // All Assemblies that are currently loaded
+    AppDomain.CurrentDomain.GetAssemblies()
+    // Select from each assembly all types
+    .SelectMany(assembly => assembly.GetTypes())
+    // Filter them by types which can be assigned to `IEnumerable`
+    .Where(type => type.IsAssignableTo(typeof(IEnumerable)))
+    // Filter them by types which are not abstract (so we don't get interfaces or abstract base classes)
+    .Where(type => !type.IsAbstract);
+
+Console.WriteLine($"Total Amount of Enumerables: {allEnumerableTypes.Count()}");
+foreach (var type in allEnumerableTypes)
+{
+    Console.WriteLine(type);
+}
+```
+
+Output:
+```
+Total Amount of Enumerables: 106
+System.String
+System.ArraySegment`1[T]
+```
+
+Usage:
+You can for example find all classes implementing `IGame` and then have a Main Menu that automatically scans the solution for all classes implementing `IGame`. Or you could scan for all classes implementing `IDifficulty` or so.
+
+## Let's find out all the fields that a Type has
+
+```cs
+using System.Linq;
+using System.Reflection;
+
+var propertyInfos = 
+    gameObject
+    .GetType()
+    .GetProperties();
+
+Debug.Log($"Found a total of {propertyInfos.Count()} {nameof(propertyInfos)}");
+Debug.Log(string.Join("\n", propertyInfos.Select(GetDescription)));
+
+string GetDescription(PropertyInfo propertyInfo)
+{
+    return $"Found {nameof(propertyInfo)} {propertyInfo.Name} of Type {propertyInfo.PropertyType.FullName}";
+}
+```
+
+Output:
+```
+Found a total of 25 propertyInfos:
+Found propertyInfo rigidbody of Type UnityEngine.Component
+Found propertyInfo rigidbody2D of Type UnityEngine.Component
+Found propertyInfo camera of Type UnityEngine.Component
+...
+```
+
+Usage:
+You can write tools, editors, inspectors, serializers or deserializes using this Method. For example convert any C# class to a text-file and load it from a text-file again.
+
+## Let's get sneaky and access something private
+
+```cs
+using System;
+using System.Reflection;
+
+Unit unit = new Unit();
+unit.Health = 200;
+Console.WriteLine(unit.Health); // 100
+// Getting the Field Info of a private instance member:
+var fieldInfo = unit.GetType().GetField("health", BindingFlags.NonPublic | BindingFlags.Instance);
+// Using the Field Info to set a value on a unit:
+fieldInfo.SetValue(unit, 200);
+Console.WriteLine(unit.Health); // 200
+// Using the Field Info to get the value from a unit:
+int health = (int)fieldInfo.GetValue(unit);
+
+class Unit
+{
+    private int health;
+
+    public int Health
+    {
+        get => health;
+        set => health = Math.Clamp(value, 0, 100);
+    }
+}
+```
+
+Output:
+```
+100
+200
+```
+
+Well, here, we've used it for pure evil. And also in general, it's not a good idea to set private values of a class. But sometimes it might look like this is the easiest way of solving a problem. If you use a really good Physics Engine that for some reason has not made a really important value accessible to you, you might as well force access instead of switching the whole Physics Engine :)
+
+## Many others
+
+There is many other use-cases, like finding a constructor and using it to construct an object, or putting objects in a dictionary, sorted by their types or many, many more.
+
+# Attributes
+
+Attributes are kind of classes which are not intended to become part of your "real" code, but instead are used to decorate your code with hints and properties which you can then read using reflection. What? Let's have a look:
+
+## Required Properties
+
+Scenario: The user wants to create a new Profile. He needs to provide some information. Some information are required, others are optional. Our code should make sure that all required information have been set.
+
+```cs
+using System;
+using System.Linq;
+
+Profile marc = new Profile
+{
+    Title = "Mr.",
+    Name = "Marc"
+};
+
+Console.WriteLine($"Valid Profile: {ValidateProfile(marc)}");
+
+bool ValidateProfile(Profile profile)
+{
+    var requiredProperties = profile
+        .GetType()
+        .GetProperties()
+        .Where(property => property.GetCustomAttributes(typeof(RequiredAttribute), true).Any());
+    
+    foreach (var property in requiredProperties)
+    {
+        if (string.IsNullOrWhiteSpace((string)property.GetValue(profile)))
+        {
+            string reason = (property.GetCustomAttributes(typeof(RequiredAttribute), true).First() as RequiredAttribute).Reason;
+            Console.WriteLine($"Error: {property.Name} not set. Reason: {reason}");
+            
+            return false;
+        }
+    }
+    return true;
+}
+
+public class Profile
+{
+    public string Title { get; set; }
+    [Required] public string Name { get; set; }
+    public string Gender { get; set; }
+    [Required(Reason = "Without a description, your profile looks boring.")] public string Description { get; set; }
+}
+
+public class RequiredAttribute : System.Attribute
+{
+    public string Reason { get; set; }
+}
+```
+
+So, you can define an Attribute by making it inherit from `System.Attribute`. It is common to add `Attribute` at the end of your attribute's name:
+
+```cs
+public class RequiredAttribute : System.Attribute
+{
+    public string Reason { get; set; }
+}
+```
+
+When using your Attribute, you can actually skip the Attribute-Part of the name:
+```cs
+[Required] public string Name { get; set; }
+```
+
+You can put the Attribute behind a lot of things. Like: classes, fields, enums, enum values, properties, methods, parameters and many more.
+
+Also, if your attribute has Properties, you can assign them to leave additional information:
+
+```cs
+[Required(Reason = "Without a description, your profile looks boring.")] public string Description { get; set; }
+```
+
+Now, you can use Reflection to find out, whether any Class, Property, Field, ... has the Attribute:
+
+```cs
+property.GetCustomAttributes(typeof(RequiredAttribute), true).Any()
+```
+
+And even look at the Attribute's values:
+
+```cs
+RequiredAttribute required = property.GetCustomAttributes(typeof(RequiredAttribute), true).First() as RequiredAttribute;
+Console.WriteLine(required.Reason);
+```
+
+You have used Attributes in a few places already, I hope this helps you understand what they are.
+
+# Queue
+
+We have learned about Lists and Stacks, the third of the most important Collections is the Queue. It is used, when things should get in order to be dealt with one at a time. They follow the
+
+## FIFO Principle
+> First in, first out.
+
+This means that the items are returned in correct order. The one that was added first is returned first and then the next one etc. The item that was added last is returned last. Like any Queue online or in front of the liquor store New Year's Eve.
+
+## Usage
+If you have more work coming in than you can handle and want to make sure that they all get handled in fair oder. First come, first serve.
+- e.g. Players queueing for Matchmaking, festival ticket booking or a full Server.
+
+Or you just want to do the work later for some reason.
+- e.g. the Game is paused right now.
+
+If you want things to happen sequenced one after another.
+- e.g. download a file, then load the file as a scene, then start the game.
+
+If you want to queue up Game Events or Player Input
+- e.g. multiple pop-ups appearing on Game Star, or a player queueing actions in a strategy game. Walk, then Attack the Tower, then Kill the goddamn sheep.
+
+## Specification
+
+Class: `TurboQueue<T>`
+
+A Queue's common Interface contains the following:
+
+```cs
+// returns the current amount of items contained in the stack.
+int Count;
+// adds one item to the back of the queue.
+void Enqueue(T item);
+// returns the item in the front of the queue without removing it.
+T Peek();
+// returns the item in the front of the queue and removes it at the same time.
+T Dequeue();
+// removes all items from the queue.
+void Clear();
+// --------------- optional ---------------
+// gets the iterator for this collection. Used by IEnumerable<T>-Interface to support foreach.
+IEnumerator<T> IEnumerable<T>.GetEnumerator();
+```
+
+Well, this one is a bit more trouble-some than the Stack, isn't it?
+
+The first, most obvious implementation is quite understandable. I recommend you to go for that one.
+
+But then, look at the Dequeue-Method. It's a lot of work, isn't it? It's a bit like with the List:
+- removing something from the end is super easy.
+- but removing something from the front or in between? That requires a lot of shifting.
+
+Try to think of a method using one Array that only needs ot move items around if the Buffer needs to be resized.
+
+How would you go at that?
+
+<details>
+  <summary>Giving up? Check here.</summary>
+  
+  Check out Ring-Buffers.
+</details>
+
+## Application: Shunting-Yard-Algorithm
+
+Implement the Shunting-Yard-Algorithm.\
+Write a Console Application that asks you to enter any Mathematical Expression that's supposed to be resolved. The expressions may contain at least `+`, `-`, `*`, `/` and `()`.
+
+Output:
+```
+Enter an expression:
+<<< 12+(2+4)*3
+Result: 30
+```
+
+---
+
+# Further Research
+- Read up on Single and Double Linked Lists.
+- Implement `TurboLinkedQueue` and `TurboLinkedStack` as Linked Lists.
+- Can you think of other situations in which you could use the solution for the Queue-Spoiler?
+- Try publish your TurboCollections on NuGet. The name `TurboCollections` is already taken, though :P
+- Create a new Project outside of the solution. Add your NuGet-Package using `dotnet add package <packagename>`.
