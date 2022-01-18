@@ -404,6 +404,20 @@ Let's implement our first own Collection! It will not require the `yield` Statem
 
 Our class will be called `TurboList` and it will be a Generic Collection. Not that our implementation would be any better or faster than the original .NET implementation, but I want to avoid us having name conflicts with the existing `List<T>` all the time.
 
+The Idea of a List is that it behaves very similar to an Array. But instead of giving a fixed size to the List, it should Resize itself automatically to our needs. In other words, we should be able to Add and Remove Items as we want. The Method `Add` just puts an item at the end of the List. Making it especially easy to add an item.
+
+## Usage
+
+Anything that you have a variable number of; e.g.:
+- Items
+- Players
+- Enemies
+- PowerUps
+- Achievements
+- Orders
+- ...
+
+
 ## Specification
 
 A List's common interface contains the following:
@@ -415,6 +429,8 @@ int Count;
 void Add(T item);
 // gets the item at the specified index. If the index is outside the correct range, an exception is thrown.
 T Get(int index);
+// replaces the item at the specified index. If the index is outside the correct range, an exception is thrown.
+T Set(int index, T value);
 // removes all items from the list.
 void Clear();
 // removes one item from the list. If the 4th item is removed, then the 5th item becomes the 4th, the 6th becomes the 5th and so on.
@@ -423,12 +439,12 @@ void RemoveAt(int index);
 bool Contains(T item);
 // returns the index of the given item if it is in the list, else -1.
 int IndexOf(T item);
-// removes the specified item from the list, if it can be found.
+// removes the specified item from the list, if it can be found. Workes similar to RemoveAt.
 void Remove(T item);
-// adds multiple items to this list at once.
+// adds multiple items ad the end of this list at once. Works similar to Add.
 void AddRange(IEnumerable<T> items);
-// gets the iterator for this collection. Used by IEnumerator to support foreach.
-IEnumerator<T>.GetEnumerator();
+// gets the iterator for this collection. Used by IEnumerable<T>-Interface to support foreach.
+IEnumerator<T> IEnumerable<T>.GetEnumerator();
 ```
 
 ## Remarks
@@ -449,4 +465,683 @@ Hint: The Method `Array.Resize(ref Array array, int newSize)` exists. And yes, i
 
 ## Repository / Solution
 
-For this implementation, we will set up a Solution together which will allow you to work Test-Driven.
+For this implementation, we will set up a Solution which will allow you to work Test-Driven.
+
+Here's a Guideline for how to use the DotNet CLI to do so: [CLI Multi-Project Setup](https://gist.github.com/InaSLew/a0b174f07fb657e8a3133daa3e942fb9)
+
+## Application: CustomerManager
+
+The Idea is to write an application that allows you to add and remove customers to a list.
+
+```
+Choose one option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 1
+What is the Customer's name?
+<<< Marc
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 1
+What is the Customer's name?
+<<< Anna
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 1
+What is the Customer's name?
+<<< Max
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 4
+0: Marc
+1: Anna
+2: Max
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 2
+What is the Customer's name?
+<<< Marc
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 4
+0: Anna
+1: Max
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 3
+What index?
+<<< 1
+Choose an option:
+(1) Add a Customer
+(2) Remove a Customer by name
+(3) Remove a Customer by index
+(4) Display all Customers
+<<< 4
+0: Anna
+```
+
+## You did it wrong!
+
+Have you completed all of the steps for implementing the `TurboList`? Well, then chances are that you did it wrong. Sorry. Well, not wrong really, but quite wasteful of resources.
+
+Most probably, you resized the Array every time an element is added and probably also when it's removed? Like this:
+
+| Action | List Count | Array Length
+:---------:|:------------:|:---------------:
+|     |     0      |  0
+| Add |     1      |  1
+| Add |     2      |  2
+| Add |     3      |  3
+| Add |     4      |  4
+| Remove |     3      |  3
+| Add |     4      |  4
+| Add |     5      |  5
+
+What is the problem with this? Well, every time when the Array needs to be Resized, a new Array is created and the old one is dumped. That's a lot of wasted resources. Ideally, your list would do something like this:
+
+| Action | List Count | Array Length
+:---------:|:------------:|:---------------:
+|     |     0      |  0
+| Add |     1      |  4
+| Add |     2      |  4
+| Add |     3      |  4
+| Add |     4      |  4
+| Remove |     3      |  4
+| Add |     4      |  4
+| Add |     5      |  8
+
+In other words: always make sure that there's some extra space in the buffer. It is quite common to always resize the array to double the size when needing to increase the size. And to never decrease it. This will reduce performance wasted on: Memory Allocation, Copying Memory and Garbage Collection. But it will instead waste resources on some unused Memory (if your list only needs 9 elements, then a buffer for 16 elements is quite wasteful).
+
+This is very common with Algorithms and Data Structures: you either benefit in less Memory Consumption, or better CPU Performance.
+
+---
+
+# Streams
+
+Let's go back to streams for another second.
+
+```cs
+using System.IO;
+
+// open a stream that can write into a file 
+FileStream fileStream = File.OpenWrite("log.txt");
+// open a stream writer for the filestream, which makes writing text easier
+StreamWriter streamWriter = new StreamWriter(fileStream);
+
+for (int i = 0; i < 10000; i++)
+{
+    streamWriter.WriteLine(i);
+}
+```
+
+This is, how you can use .NET's Streaming classes to write information to a file. This is again very useful in order to make sure if you have big amount of data (imagine for example your game's log, which can have tens of thousands of logs per session), that you won't have to write it all at once as a huge 4MB-File, but can instead do so line by line.
+
+.NET's Streams are very nicely designed. You can just nest Streams in Streams in Streams in order to get exactly the correct kind of Data into a Stream or out of a Stream. This is called the Decorator-Pattern.
+
+Where one class looks to the outside the same like the inner class, but can add some functionality to it (decorate it).
+
+Another example:
+```cs
+// this one can stream a byte[] into a Byte-Stream
+MemoryStream memoryStream = new MemoryStream(bytes);
+// this one can decompress GZIP from a Byte-Stream
+GZipStream gzipStream = new GZipStream(memoryStream, CompressionMode.Decompress);
+// this one can read text from a Byte-Stream
+StreamReader streamReader = new StreamReader(gzipStream);
+```
+
+This is pretty cool. It's a bit like connecting a bunch of Adapters in order to get exactly what you want.
+
+## Flush
+
+Back to the original source code:
+
+```cs
+using System.IO;
+
+// open a stream that can write into a file 
+FileStream fileStream = File.OpenWrite("log.txt");
+// open a stream writer for the filestream, which makes writing text easier
+StreamWriter streamWriter = new StreamWriter(fileStream);
+
+for (int i = 0; i < 10000; i++)
+{
+    streamWriter.WriteLine(i);
+}
+```
+
+My output in `log.txt` for this code is:
+
+```
+...
+9231
+9232
+9
+```
+
+Wait! I can not remember wanting to log only the number until 9232 and then a 9? What's the problem?
+
+In order to optimize performance, Streams contain an internal buffer. Let's say for 10.000 bytes. And only, if that buffer is full, it will Flush the data and forward it to the next stream. This is really important, because Should the Stream write each byte one by one? That would be a lot of going back and forth to the Hard Drive for writing a file. Or sending data over the internet one byte at a time, waiting until it has been received, would also take forever.
+
+Good thing is that we can flush it manually, though:
+
+```cs
+streamWriter.Flush();
+```
+
+## Dispose
+
+Okay, that problem is solved. Let's try something else:
+
+```cs
+using System.IO;
+
+FileStream fileStream = File.OpenWrite("log.txt");
+StreamWriter streamWriter = new StreamWriter(fileStream);
+
+for (int i = 0; i < 100; i++)
+{
+    streamWriter.WriteLine(i);
+}
+
+streamWriter.Flush();
+
+// Let's think of a reason that causes us to need to open a new stream: 
+
+FileStream newFileStream = File.OpenWrite("log.txt");
+StreamWriter newStreamWriter = new StreamWriter(newFileStream);
+for (int i = 500; i < 600; i++)
+{
+    newStreamWriter.WriteLine(i);
+}
+
+newStreamWriter.Flush();
+```
+
+Output:
+```
+Unhandled exception. System.IO.IOException: The process cannot access the file 'log.txt' because it is being used by another process.
+```
+
+Okay, makes sense. Better set the old stream to null first, so it gets Destroyed, right?
+
+```cs
+using System.IO;
+
+FileStream fileStream = File.OpenWrite("log.txt");
+StreamWriter streamWriter = new StreamWriter(fileStream);
+
+for (int i = 0; i < 100; i++)
+{
+    streamWriter.WriteLine(i);
+}
+
+streamWriter.Flush();
+
+// Let's think of a reason that causes us to need to open a new stream: 
+
+// clean up the old ones first
+streamWrite = null;
+fileStream = null;
+
+// then create new ones
+FileStream newFileStream = File.OpenWrite("log.txt");
+StreamWriter newStreamWriter = new StreamWriter(newFileStream);
+for (int i = 500; i < 600; i++)
+{
+    newStreamWriter.WriteLine(i);
+}
+
+newStreamWriter.Flush();
+```
+
+Output:
+```
+Unhandled exception. System.IO.IOException: The process cannot access the file 'log.txt' because it is being used by another process.
+```
+
+Okay, that did not help. Ah yeah, the Garbage Collector will take some time before actually cleaning up the object. Let's force it:
+
+```cs
+using System;
+using System.IO;
+
+FileStream fileStream = File.OpenWrite("log.txt");
+StreamWriter streamWriter = new StreamWriter(fileStream);
+
+for (int i = 0; i < 100; i++)
+{
+    streamWriter.WriteLine(i);
+}
+
+streamWriter.Flush();
+
+// set the resources to null
+fileStream = null;
+streamWriter = null;
+// tell the Garbage Collector to run now
+GC.Collect();
+// wait for the finalizers to finish
+GC.WaitForPendingFinalizers();
+
+// Let's think of a reason that causes us to need to open a new stream: 
+
+FileStream newFileStream = File.OpenWrite("log.txt");
+StreamWriter newStreamWriter = new StreamWriter(newFileStream);
+for (int i = 500; i < 600; i++)
+{
+    newStreamWriter.WriteLine(i);
+}
+
+newStreamWriter.Flush();
+```
+
+Even this did not help in my case :( Well, relying on Finalizers to clean up our classes doesn't help apparently. Is there any other solution?
+
+# Dispose Pattern
+
+Of course there is! The Dispose Pattern helps out here. Whenever a class has Unmanaged Resources (any resource that won't automatically be cleaned up like File Handles, Network Sockets or also other Processes or so), it should implement `System.IDisposable`
+
+```cs
+namespace System;
+public interface IDisposable
+{
+    void Dispose();
+}
+```
+
+Well, that's not very exciting technology. But let's try whether it does the job:
+
+```cs
+using System.IO;
+
+FileStream fileStream = File.OpenWrite("log.txt");
+StreamWriter streamWriter = new StreamWriter(fileStream);
+
+for (int i = 0; i < 100; i++)
+{
+    streamWriter.WriteLine(i);
+}
+
+streamWriter.Flush();
+
+streamWriter.Dispose();
+fileStream.Dispose();
+
+FileStream newFileStream = File.OpenWrite("log.txt");
+StreamWriter newStreamWriter = new StreamWriter(newFileStream);
+
+for (int i = 500; i < 600; i++)
+{
+    newStreamWriter.WriteLine(i);
+}
+
+newStreamWriter.Flush();
+
+```
+
+This works! Nice! In other words: If we have classes which implement `System.IDisposable` we should not forget to call `Dispose()` when we're done using them. This will in the case of Streams also automatically Flush the Stream, by the way. But I think that it's quite easy to forget to call `Dispose()`, or?
+
+## Using using
+
+The using Keyword actually handles Disposal of `IDisposable`-Classes for us! No extra code required. You assign the resource that you want to `use` within as a Function Argument and then use the File within the `{}`-Scope. When the Scope ends, `Dispose()` is called for you on the object:
+
+```cs
+using System.IO;
+
+using (FileStream fileStream = File.OpenWrite("log.txt"))
+{
+    using (StreamWriter streamWriter = new StreamWriter(fileStream))
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            streamWriter.WriteLine(i);
+        }
+    }
+}
+
+using (FileStream fileStream = File.OpenWrite("log.txt"))
+{
+    using (StreamWriter streamWriter = new StreamWriter(fileStream))
+    {
+        for (int i = 500; i < 600; i++)
+        {
+            streamWriter.WriteLine(i);
+        }
+    }
+}
+```
+
+And because Code with a lot of Indentations becomes quite unreadable, .NET even came up with a neater syntax:
+
+```cs
+using System.IO;
+
+using FileStream fileStream = File.OpenWrite("log.txt");
+using StreamWriter streamWriter = new StreamWriter(fileStream);
+for (int i = 0; i < 100; i++)
+{
+    streamWriter.WriteLine(i);
+}
+```
+
+But careful! In this case, the Scope of the Variable only ends when the Outer Scope ends (which is the Main-Method). In other words, we would not be able to create a second FileStream for the same File anymore, because the previous fileStream would not have left the scope, yet:
+
+```cs
+using System.IO;
+
+using FileStream fileStream = File.OpenWrite("log.txt");
+using StreamWriter streamWriter = new StreamWriter(fileStream);
+for (int i = 0; i < 100; i++)
+{
+    streamWriter.WriteLine(i);
+}
+
+// This will throw an Exception again:
+using FileStream newFileStream = File.OpenWrite("log.txt");
+using StreamWriter newStreamWriter = new StreamWriter(newFileStream);
+for (int i = 0; i < 100; i++)
+{
+    newStreamWriter.WriteLine(i);
+}
+```
+
+## What if your class uses an IDisposable Field?
+
+Then your class should also implement `IDisposable` and make sure that all fields are disposed of when your class is disposed:
+
+```cs
+using System;
+using System.IO;
+public class Logger : IDisposable
+{
+    private readonly FileStream fileStream;
+    private readonly StreamWriter streamWriter;
+
+    public Logger()
+    {
+        fileStream = new FileStream("log.txt", FileMode.Create);
+        streamWriter = new StreamWriter(fileStream);
+    }
+
+    public void Log(string message)
+        => this.streamWriter.Write($"[{DateTime.Now}] {message}");
+
+    public void Dispose()
+    {
+        fileStream.Dispose();
+        streamWriter.Dispose();
+    }
+}
+```
+
+## Enumerator
+
+Fun Fact: Most Enumerator Implementations implement `IDisposable`. Well, this wasn't that funny, was it? But this has reasons of some of them being reusable. And only if they've been disposed of in time, can they be reused for another method needing an Enumerator.
+
+# Stack
+
+Lists are quite useful. Technically, you can use them for any problem. You can access any element and you can also remove elements at any index. It is not very efficient at doing so, because it needs to move all further elements in the Array forward to the previous slots, but it can do the job.
+
+But very often, you want to have a collection where you can only put things on Top and remove them from the Top as well. Kind of like a stack of plates. This Collection is called a Stack and follows the
+
+## LIFO Principle
+> Last in, first out.
+
+This means that the items are returned in reverse order. The one that was added last is returned first and then the previous one etc. The item that was added first is returned last.
+
+## Usage
+If you have a bunch of work and need to:
+- pause some work when other comes in.
+- then continue when the new work is done.
+- very often used in algorithms like Pathfinding, AI, ...
+- also, every computer program (Call Stack)
+
+If you have a game with a stack of things, where only the top one can be retrieved
+- e.g. a deck of cards
+
+Game States and UI States
+- e.g. Main Menu (bottom) -> Settings -> Confirm Popup (top)
+
+History
+- e.g. Browser History, File Explorer History, Undo/Redo
+
+## Specification
+
+Class: `TurboStack<T>`
+
+A Stack's common Interface contains the following:
+
+```cs
+// returns the current amount of items contained in the stack.
+int Count;
+// adds one item on top of the stack.
+void Push(T item);
+// returns the item on top of the stack without removing it.
+T Peek();
+// returns the item on top of the stack and removes it at the same time.
+T Pop();
+// removes all items from the stack.
+void Clear();
+// gets the iterator for this collection. Used by IEnumerable<T>-Interface to support foreach.
+IEnumerator<T> IEnumerable<T>.GetEnumerator();
+```
+
+Hm, maybe, we should have started with this example? :)
+
+## Application: GameStateHistory
+
+Write a `GameStateHistory` - Console Application in which multiple states exist. 
+- From Main Menu, you can go to Level 1, Settings or Quit.
+- From Settings you can not go anywhere
+- On Quit the Application Quits
+- From Level 1, you can go to Level 2 or the Main Menu.
+- From Level 2, you can go to Level 3 or the Main Menu
+- etc.
+
+On top of that, you have two more options at all times (unless it's not possible):
+- Go Backward: Goes back to the previous State in the history
+
+It should look something like this:
+
+```
+You are here: Main Menu
+What do you want to do?
+(0): Go to Level 1
+(1): Go to Settings
+<<< 0
+You are here: Level 1
+What do you want to do?
+(0): Go to Level 2
+(1): Go to Main Menu
+(b): Go back to Main Menu
+<<< 0
+You are here: Level 2
+What do you want to do?
+(0): Go to Level 3
+(1): Go to Main Menu
+(b): Go back to Level 1
+<<< b
+You are here: Level 1
+What do you want to do?
+(0): Go to Level 2
+(1): Go to Main Menu
+(b): Go back to Main Menu
+```
+
+Use a Stack to keep track of the History.
+
+- What if you also wanted to be able to go forward again?
+- How could you implement it using the Data Structures you already have?
+- Would another Data Structure maybe fit this problem better?
+
+---
+
+# Type-Introspection
+
+Type-Introspection is an extremely powerful tool that allows your code to work with types that it doesn't even know of. It comes automatically with .NET, is called `System.Reflection` and it provides Type-Information for every single Type and Object Instance of that Type.
+
+## Usage
+- Most obvious: To find out, whether a class has a certain type or inherits from a certain type or implements a certain interface. Keywords like `is` use Type-Introspection under the hood.
+- Just as obvious: Safely casting the Type. Keywords like `as` use Type-Introspection under the hood.
+- Showing Editors, like in Unity. This is how Unity knows what fields to Display in the Inspector. You could also build a Remote Inspector this way.
+- Serializing or Deserializing any class.
+- Scanning the codebase for all classes implementing a certain Interface, to automatically load them or show them in the UI.
+- Building a Visual Scripting Editor that can call your methods or change you Properties.
+- Dangerous: To access private fields and methods. This is of course not recommended, but sometimes you find a class that's almost perfect. But there's also this one method that is `private` that you'd like to use.
+- To call methods or constructors of unknown Types. e.g. for an In-Game Console or for using Dependency Injection.
+
+## GetType()
+
+The Method `System.Type GetType();` is defined on the `object`-Baseclass and therefor usable on any object in C#:
+
+```cs
+using System;
+
+int a = 5;
+string name = "Hi!";
+
+Console.WriteLine(a.GetType());
+Console.WriteLine(name.GetType());
+```
+
+Output:
+```
+System.Int32
+System.String
+```
+
+What do you think is the Result here?
+
+```cs
+using System;
+
+Dog dog = new Dog();
+Animal animal = new Dog();
+object obj = new Dog();
+
+Console.WriteLine(dog.GetType());
+Console.WriteLine(animal.GetType());
+Console.WriteLine(obj.GetType());
+
+class Animal{}
+class Dog : Animal{}
+```
+
+Output:
+```
+Dog
+Dog
+Dog
+```
+
+Okay cool, so this way, we can get the REAL Type of an object. Not only the base-Type that we know of.
+
+## typeof
+
+`typeof()` is a useful Keyword which can give you the `System.Type` of a Type that's known during compile-time. Look at this example:
+
+```cs
+Animal animal = new Dog();
+Console.WriteLine(animal.GetType() == typeof(Dog));
+Console.WriteLine(animal.GetType() == typeof(Animal));
+
+class Animal{}
+class Dog : Animal{}
+```
+
+Output:
+```
+True
+False
+```
+
+Two things learned here: Into `typeof`, we can pass the name of a Type and it will return the `System.Type` of that Type.
+
+And, we can compare `System.Type` and it returns `true` only, if it's exactly the same Type. It's not enough if there's a common base class. In comparison, if you check the Type with `is`, it returns `true` both times:
+
+```cs
+Animal animal = new Dog();
+Console.WriteLine(animal is Dog);
+Console.WriteLine(animal is Animal);
+
+class Animal{}
+class Dog : Animal{}
+```
+
+Output:
+```
+True
+True
+```
+
+This is by the way, how Generic Methods were created before Generic Methods existed:
+
+```cs
+gameObject.GetComponent(typeof(Health));
+```
+
+Instead of:
+
+```cs
+gameObject.GetComponent<Health>();
+```
+
+## nameof
+
+Another very useful feature is `nameof`, especially when using Reflection or displaying output to the user. Look at this example:
+
+```cs
+void Attack(Enemy enemy) {
+    if(enemy == null) {
+        Console.WriteLine($"Error: '{nameof(enemy)}' can not be null!");
+    }
+}
+```
+
+Output:
+```
+Error: 'enemy' can not be null!
+```
+
+Well, this was a very complicated way of writing this:
+
+```cs
+void Attack(Enemy enemy) {
+    if(enemy == null) {
+        Console.WriteLine($"Error: 'enemy' can not be null!");
+    }
+}
+```
+
+Why go the long way, then? Because the long way will cause errors, if the parameter was to be removed or renamed. This makes sure, that you don't change the code at some point and make it look like this:
+
+```cs
+void Attack(Unit unit) {
+    if(unit == null) {
+        Console.WriteLine($"Error: 'enemy' can not be null!");
+    }
+}
+```
+
+Now, the Log shows wrong information. There is no parameter named `enemy` anymore. If you use `nameof`, IDEs will actually automatically rename `enemy` to `unit` for you. This is such a useful feature, that I'll always strike you in Code Review, if I see you put the name of a class or field or parameter into a string without using `nameof`.
