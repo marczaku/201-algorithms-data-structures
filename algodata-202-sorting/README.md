@@ -83,6 +83,9 @@ Let's start with an example right away. Probably the most intuitive one:
 - swap the smallest element with the first
 - continue the previous steps for the remaining list until the list is empty
 
+<img width="299" alt="image" src="https://user-images.githubusercontent.com/7360266/150952165-82dba5e0-bf8f-4552-b0fc-b19c7960c2cd.png">
+
+
 Is this a good algorithm?
 
 ## Classifying Algorithms
@@ -137,6 +140,9 @@ Result: 10, 1, 1, 1, 1, 1
 Wouldn't 7, 7, 1 be the best result?
 
 This is, why it's called a greedy algorithm. It always tries to go for the most obvious solution first. The one, that brings us to the goal more efficiently. Through that, it might discard the best solution, though.
+
+<img width="652" alt="image" src="https://user-images.githubusercontent.com/7360266/150950573-ad4bbd70-d1d1-46f8-8796-45fec0a2c38e.png">
+
 
 This is called the difference between a Local and Global Optimum. Greedy Algorithms fall into a trap of a Local Optimum, where a solution seems to be the best given a limited field of vision, but there might be a Global Optimum that's even better.
 
@@ -236,6 +242,10 @@ What if the list
 ## Bubblesort
 - extremely naive sorting algorithm
   - mostly used as a bad example
+
+<img width="525" alt="image" src="https://user-images.githubusercontent.com/7360266/150951649-dc813f7d-43f3-475e-8751-d0c085571750.png">
+
+
 - compares two neighboring elements
 - swaps them if necessary
 - does this for the whole list
@@ -267,6 +277,8 @@ What if the list
 ## Quicksort
 - very fast algorithm
 
+<img width="626" alt="image" src="https://user-images.githubusercontent.com/7360266/150951414-d539f23f-a025-486b-a123-3a4ffccda763.png">
+
 Idea:
 - divide and conquer
 - split the problem in half
@@ -278,8 +290,14 @@ Idea:
 > Divide and rule
 - In Programming and Politics used as "Divide and Conquer".
 
+<img width="264" alt="image" src="https://user-images.githubusercontent.com/7360266/150950995-a8964711-0085-4305-9925-a2e796e49925.png">
+
+
 This is a technique phrased and used by Julius Caesar to conquer his enemies:
 > Break up larger concentrations of power into pieces that individually have less power than the one implementing the strategy.
+
+<img width="983" alt="image" src="https://user-images.githubusercontent.com/7360266/150951168-c584d386-3678-408c-bbbc-028e7e44964b.png">
+
 
 How To Eat an Elephant?
 > One bite at a time.
@@ -307,3 +325,18 @@ I often like to think of programmers as problem-solvers. The techniques that we 
 - O(n log n)
 - version of Quicksort that falls back to other algorithm in bad cases
 - fastest known stable/unstable sorting algorithms
+
+## ToDo:
+- Use your TurboList
+- Add a BubbleSort()-Method that sorts the List using Bubblesort.
+- Add a QuickSort()-Method that sorts the List using Quicksort.
+- Bonus: Add a SelectionSort()-Method that sorts the List using SelectionSort.
+- Compare the Speed of the algorithms using `System.Stopwatch`.
+  - For random, unsorted lists.
+  - For reverse-sorted lists.
+  - For sorted lists.
+- Write Tests for your Sorting-Algorithms!
+  - Do they sort successfully?
+  - Do they sort in-place or out-of-place?
+- Can you implement the Algorithms in a way that they work for your `TurboList`, but also a `System.Array`, a `System.Collections.Generic.List` and your `TurboLinkedList`? Hint: Use the Interface `System.Collections.Generic.IList<T>`
+- Can you make the Algorithm Generic? Hint: Use the Interface `IComparable` or `IComparer`
