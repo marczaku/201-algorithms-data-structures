@@ -1569,7 +1569,7 @@ How would you go at that?
 <details>
   <summary>Giving up? Check here.</summary>
   
-  Check out Ring-Buffers.
+- Check out Ring-Buffers.
 </details>
 
 ## Application: Shunting-Yard-Algorithm
