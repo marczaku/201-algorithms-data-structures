@@ -161,7 +161,7 @@ current_cell <= random from candidates
 - might bounce back and forth a lot
 - but eventually, it will often find its target
 
-<img width="295" alt="image" src="https://user-images.githubusercontent.com/7360266/152982991-5f2812f8-5f78-43d1-8d43-08110fec914e.png">
+<img width="315" alt="image" src="https://user-images.githubusercontent.com/7360266/152982991-5f2812f8-5f78-43d1-8d43-08110fec914e.png">
 
 
 - unfortunately, it gets stuck in concave obstacles
@@ -171,7 +171,7 @@ current_cell <= random from candidates
 
 ### 2.2.2 Evasion Strategy 2: Simple Tracing
 
-<img width="312" alt="image" src="https://user-images.githubusercontent.com/7360266/152983015-9e8e318f-23cc-465d-abcf-412d14dcd3e3.png">
+<img width="315" alt="image" src="https://user-images.githubusercontent.com/7360266/152983015-9e8e318f-23cc-465d-abcf-412d14dcd3e3.png">
 
 
 This time, we'll apply a classic strategy used in Mazes: we circumvent the obstacle by following the wall until we can freely walk in the original direction that we were blocked in. In this case, we'll always walk the left way and keep our "right hand" on the wall:
@@ -191,7 +191,8 @@ while(current_cell + blocked_direction is not walkable)
 
 ### 2.2.3 Evasion Strategy 3: Robust Tracing
 
-<img width="426" alt="image" src="https://user-images.githubusercontent.com/7360266/152983092-9df267b7-58b3-4e07-93e7-bbeffd68958d.png">
+<img width="315" alt="image" src="https://user-images.githubusercontent.com/7360266/153022117-a938ed33-69e5-44e8-8ceb-bf9b98a86d70.png">
+
 
 
 This solution is a standard solution in robotics. As soon as we collide, we:
