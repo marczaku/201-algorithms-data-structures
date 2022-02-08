@@ -659,6 +659,12 @@ procedure find_path(start_node, end_node)
 end procedure
 ```
 
+Wait, what happened here? Why does `enqueue` suddenly take two arguments?
+
+The first argument is the Priority. Lowest Value is returned first. Instead of always returning the one that was enqueued first, here the nodes receive a Priority and are returned in that order.
+
+If you wish to implement this class yourself, have a go at implementing a Min-Heap. (It's a special kind of Binary Tree, not a Binary Search Tree)
+
 Pro: Complete. Optimal. Can Deal with Connection-Costs.
 Con: Complexity is polynomial (n^2). Memory usage is rather high.
 
@@ -764,6 +770,22 @@ They will allow you to map more precise paths for each use-case.
 ### 3.2.10 Less Actors
 
 If you want to move multiple units from one place to another, maybe not each of them needs to calculate the path, but only one "leader" and then they can share the path?
+
+### 3.2.11 Storing Pathfinding Information on the Nodes
+
+Very often, you'll find that information like the Total Costs and the Predecessor are stored on the Nodes directly instead of in Dictionaries. That makes a lot of sense! But I did not want to show different Node-Class implementations but instead focus on the Algorithm.
+
+But as mentioned before (on the Hashing-Slides):
+
+```
+Dictionary<Cell, int> costs;
+costs[cell] = 5;
+```
+
+Is the same as:
+```
+cell.costs = 5;
+```
 
 
 ## 3.3 Problem: The Navigation
