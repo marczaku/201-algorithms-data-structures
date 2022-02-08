@@ -4,7 +4,7 @@ In this chapter, we will take our collections to the next dimension. Literally. 
 
 Think for example of a digital representation of Stockholm's Metro Network:
 
-<img src = "https://mapa-metro.com/mapas/Estocolmo/Stockholm_metro_map.png">
+<img width="711" alt="image" src="https://user-images.githubusercontent.com/7360266/152983698-22fb9246-311b-4470-bef2-49442e330057.png">
 
 You could store the information in multiple Arrays, maybe:
 
