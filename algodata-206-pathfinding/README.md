@@ -146,6 +146,10 @@ Okay, obviously, we need to find a way around the obstacle. But what could this 
 
 ### 2.2.1 Evasion Strategy 1: Random Bounce
 
+<img width="329" alt="image" src="https://user-images.githubusercontent.com/7360266/152982906-7ac859aa-38c9-480b-b825-144035c49224.png">
+
+
+
 Our first strategy will be very naive: we just walk a random direction and hope that it brings us around the obstacle at some point.
 
 ```
@@ -156,12 +160,19 @@ current_cell <= random from candidates
 - not very smart
 - might bounce back and forth a lot
 - but eventually, it will often find its target
+
+<img width="295" alt="image" src="https://user-images.githubusercontent.com/7360266/152982991-5f2812f8-5f78-43d1-8d43-08110fec914e.png">
+
+
 - unfortunately, it gets stuck in concave obstacles
   - because it needs to walk "backwards"
   - but afterwards, it will always the previous cell as a "good candidate" again
 - it will not notice, if there's no way
 
 ### 2.2.2 Evasion Strategy 2: Simple Tracing
+
+<img width="312" alt="image" src="https://user-images.githubusercontent.com/7360266/152983015-9e8e318f-23cc-465d-abcf-412d14dcd3e3.png">
+
 
 This time, we'll apply a classic strategy used in Mazes: we circumvent the obstacle by following the wall until we can freely walk in the original direction that we were blocked in. In this case, we'll always walk the left way and keep our "right hand" on the wall:
 
@@ -172,9 +183,16 @@ while(current_cell + blocked_direction is not walkable)
 ```
 
 - Works nicely, even for concave obstacles
+
+<img width="315" alt="image" src="https://user-images.githubusercontent.com/7360266/152983057-8197d090-63ba-403a-99f0-3e26578dd242.png">
+
+
 - But fails in some cases
 
 ### 2.2.3 Evasion Strategy 3: Robust Tracing
+
+<img width="426" alt="image" src="https://user-images.githubusercontent.com/7360266/152983092-9df267b7-58b3-4e07-93e7-bbeffd68958d.png">
+
 
 This solution is a standard solution in robotics. As soon as we collide, we:
 - calculate a line between current position and target
@@ -191,6 +209,12 @@ blocked_line <= line through current_cell and target_cell
 while(current_cell + blocked_direction is not walkable)
    current_cell = follow_the_wall()
 ```
+
+An easier implementation of this would be:
+- Trace the wall for as long as the total rotation is not 0 Degrees and the original direction is free.
+- Turning Left = -90 Degrees.
+- Turning Right = 90 Degrees.
+- Walk until back at 0 Degrees. Not 360 or - 360.
 
 ## 2.3 SLAM: Simultaneous Localization and Mapping
 
