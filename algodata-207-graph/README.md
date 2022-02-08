@@ -254,15 +254,15 @@ With this method, we first look at all neighbors of the current node and then al
 
 ```
 visited_nodes = [start_node]
-path = [start_node]
+todo_nodes = [start_node]
 
 while path not empty
-   for each neighbor in path.dequeue().getNeighbors()
+   for each neighbor in todo_nodes.dequeue().getNeighbors()
       if(neighbor in visited_nodes)
          continue
       else
          visited_nodes.add(neighbor)
-         path.enqueue(neighbor)
+         todo_nodes.enqueue(neighbor)
       end if
    end for
 end while
