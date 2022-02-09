@@ -371,11 +371,11 @@ Navigation Meshes are a great extension of Grids. Instead of rasterising the who
 
 The advantage is that a really big empty area only needs a few vertices instead of thousands of empty Grid Cells.
 
-#### 3.1.3.1 Where's my Grid?
+#### 3.1.3.1 Where's my Graph?
 
 <img width="544" alt="image" src="https://user-images.githubusercontent.com/7360266/153051587-418982e4-5ece-4e4f-bb4d-ff6338ef0295.png">
 
-The Grid can be found by connecting each Polygon with its adjacent neighbors.
+The Graph can be found by connecting each Polygon with its adjacent neighbors.
 
 #### 3.1.3.2 But how do I create a Navigation Mesh?
 
@@ -385,7 +385,7 @@ Seriously, though, it's [not easy](https://gamedev.stackexchange.com/questions/3
 
 ## 3.2 Problem: The Path
 
-Okay, we got a Grid. We have some Data Format, where we can find the Start-Node and the End-Node and we can find Neighbors of each Nodes. How do we find the Path from Start to End now?
+Okay, we got a Graph. We have some Data Format, where we can find the Start-Node and the End-Node and we can find Neighbors of each Nodes. How do we find the Path from Start to End now?
 
 There is a few ways of classifying Pathfinding Algorithms:
 - Efficiency - how many nodes need to be visited in order to find the path?
@@ -529,7 +529,8 @@ procedure find_path(start_node, end_node)
 
    while path not empty
       path = todo_paths.dequeue()
-      for each neighbor in path.getNeighbors()
+      current_node = path.peek()        // NEW
+      for each neighbor in current_node.getNeighbors()
          if(neighbor == end_node)         // NEW
             return [path, neighbor]       // NEW
          else if(neighbor in visited_nodes)
@@ -571,7 +572,7 @@ procedure find_path(start_node, end_node)
 
    while path not empty
       current_node = todo_nodes.dequeue()
-      for each neighbor in path.getNeighbors()
+      for each neighbor in current_node.getNeighbors()
          if(neighbor == end_node)
             return build_path(predecessors, neighbor) // NEW
          else if(neighbor in predecessors)
@@ -630,10 +631,11 @@ And then, the Algorithm helps us find the shortest path, respecting those costs.
 ```
 procedure find_path(start_node, end_node)
    todo_nodes = []
-   todo_nodes.enqueue(0, start_node)
    predecessors = []=>[]
-   costs = []=>[]
-   costs[start_node] = 0
+   costs = []=>[]          // NEW
+   
+   todo_nodes.enqueue(0, start_node)
+   costs[start_node] = 0   // NEW
 
    while path not empty
       current_node = todo_nodes.dequeue()
@@ -642,16 +644,16 @@ procedure find_path(start_node, end_node)
       end if
       for each connection in path.getNeighbors()
          neighbor = connection.next
-         new_costs = costs[current_node] + connection.costs
-         if(neighbor in costs and costs[neighbor] <= new_costs)
+         new_costs = costs[current_node] + connection.costs      // NEW
+         if(neighbor in costs and costs[neighbor] <= new_costs)  // CHANGE
             continue
          else
             if(neighbor in todo_nodes)
                remove neighbor from todo_nodes
             end if
             predecessors[neighbor] = current_node
-            costs[neighbor] = new_costs
-            todo_nodes.enqueue(new_costs, neighbor)
+            costs[neighbor] = new_costs                // NEW
+            todo_nodes.enqueue(new_costs, neighbor)    // CHANGE!
          end if
       end for
       visited_nodes.add(current_node)
@@ -733,8 +735,8 @@ procedure find_path(start_node, end_node)
             end if
             predecessors[neighbor] = current_node
             costs[neighbor] = new_costs
-            heuristic = estimate_remaining(neighbor) // CHANGE
-            todo_nodes.enqueue(new_costs+heuristic, neighbor) // CHANGE
+            heuristic = estimate_remaining(neighbor)            // NEW
+            todo_nodes.enqueue(new_costs+heuristic, neighbor)   // CHANGE
          end if
       end for
       visited_nodes.add(current_node)
