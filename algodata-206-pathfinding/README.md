@@ -817,4 +817,4 @@ Optimize the paths by applying the Funnel Algorithm to find shortest paths on Na
 Avoid other actors on the way.
 
 ## 3.3.5 Reevaluate
-Recalculate the path in regular intervals or when the actor notices that it is stuck (maybe, he got pushed down or missed a jump)
+Recalculate the path in regular intervals, when the environment changes or when the actor notices that it is stuck (maybe, he got pushed down or missed a jump)

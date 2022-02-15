@@ -197,19 +197,21 @@ The Problem:
 - Minimizing the opponent's options while assuming their Best-Case Scenario
 
 ```
-function  minimax(node, depth, maximizingPlayer) is
-    if depth = 0 or node is a terminal node then
-        return the heuristic value of node
+function minimax(node, maximizingPlayer) is
+    if node is a terminal node then
+        return WIN(1) or DRAW (0) or LOSE(-1) for node
     if maximizingPlayer then
         value := −∞
         for each child of node do
-            value := max(value, minimax(child, depth − 1, FALSE))
+            value := max(value, minimax(child, FALSE))
         return value
     else (* minimizing player *)
         value := +∞
         for each child of node do
-            value := min(value, minimax(child, depth − 1, TRUE))
+            value := min(value, minimax(child, TRUE))
         return value
+    end if
+end function
 ```
 
 ```
@@ -241,6 +243,29 @@ This is called **Iterative Deepening MiniMax** Algorithm.
 - Run algorithm only until chosen depth.
 - (does this remind you of another algorithm?)
 - Increase the depth and re-run, if the result is not good enough, yet and there is more time available
+
+```
+function minimax(node, depth, maximizingPlayer) is        // CHANGE
+    if depth = 0 or node is a terminal node then           // CHANGE
+        return the heuristic value of node                 // CHANGE
+    if maximizingPlayer then
+        value := −∞
+        for each child of node do
+            value := max(value, minimax(child, depth − 1, FALSE))  // CHANGE
+        return value
+    else (* minimizing player *)
+        value := +∞
+        for each child of node do
+            value := min(value, minimax(child, depth − 1, TRUE))    // CHANGE
+        return value
+    end if
+end function
+```
+
+```
+(* Initial call *)
+minimax(origin, depth, TRUE)          // CHANGE
+```
 
 # 7 Heuristic Functions
 
@@ -344,6 +369,8 @@ function alphabeta(node, depth, α, β, maximizingPlayer) is
                 break (* α cutoff *)
             β := min(β, value)
         return value
+    end if
+end function
 ```
 
 ```
@@ -391,7 +418,9 @@ The stages are:
 - simulation (after expansion, we pick a random or a heuristically chosen child node to evaluate the result from here)
 - backpropagaion (also known as update phase)
 
-# 12 Topics that we haven't covered:
+# 12 Topics that we haven't covered
+
+There's of course thousands of topics that we haven't covered, yet, but here's an overview of what might be the most relevant ones.
 
 ## 12.1 Trained A.I.
 
@@ -402,7 +431,7 @@ This includes:
 
 ## 12.2 A.I. Behavior States
 
-This is a field of study that assesses how to have scripted A.I.
+This is a field of study that assesses how to have scripted A.I. that are adaptive, as in they change their behaviours not only based on their current state, but based on a history of previous states / events.
 
 This includes:
 - Finite State Machines (FSM, A Decision Tree that can react to events and switch State / Behavior)
