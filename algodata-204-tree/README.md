@@ -471,22 +471,3 @@ Step 3 − Compare the value of this child node with its parent.
 Step 4 − If value of parent is less than child, then swap them.
 Step 5 − Repeat step 3 & 4 until Heap property holds.
 ```
-
-# Exercise
-
-Implement a simple Binary Search Tree `TurboBinarySearchTree` or `TurboBinarySearchTree<T> where T:IComparable<T>` without Balancing Algorithms. It should have these methods:
-
-- `Insert`, `Search`, `Delete`, 
-- `GetEnumerator`: returns all items in order, from min to max
-- `GetInOrder`: same as GetEnumerator 
-- `GetInReverseOrder`: returns all items in reverse order, from max to min
-
-Bonus:
-
-- `Clone`: creates a clone of the tree
-- `Delete`: deletes the tree, but node by node (set the value to 0, then set left to `null` and right to `null`)
-- Implement the Tree using an `Array` to store all values instead of `Node`-classes.
-
-Insane Bonus:
-
-Try yourself at a Balancing Binary Search Tree implementation

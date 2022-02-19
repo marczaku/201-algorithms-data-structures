@@ -35,20 +35,104 @@ The ability to break down a computation or problem into one or more routines tha
 Collections are used to store and group some variable number of data items that have some shared significance to the problem being solved and need to be operated upon together in some controlled fashion.
 
 This module introduces you to a variety of collections that are used in several, most common contexts. As well as the `IEnumerable`-Interface, which allows easy iteration over your collection using `foreach`.
+
+[Collections](./algodata-201-collections/)
+- [ ] `System.Collections`
+- [ ] `System.Collections.Generic`
+- [ ] `IEnumerable`
+- [ ] `IEnumerable<T>`
+- [ ] `foreach`
+- [ ] `yield`
+- [ ] `List`
+- [ ] `Stream`
+- [ ] `System.IDispoable`
+- [ ] `Stack`
+- [ ] `Extension Method`
+- [ ] `System.LINQ`
+- [ ] `Reflection`
+- [ ] `System.Attribute`
+- [ ] `Queue`
+
 ## Module 202: Sort & Search
 Having unsorted collections of data will become unacceptable for growing problems. Searching for the correct item in a list of 10 might be okay, but searching for the correct citizen in a country of 10 Million would take a looooong time.
 
 Finding things becomes more easy, if things are sorted. Like in a phone book. But sorting information is a whole other problem. That's why we'll explore both in this module.
+
+[Sort](./algodata-202-sort/)
+- [ ] Algorithms
+- [ ] Selection Sort
+- [ ] Big-O Notation
+- [ ] In-Place/Out-of-Place
+- [ ] Stable/Unstable
+- [ ] Bubble Sort
+- [ ] Quick Sort
+- [ ] Divide and Conquer
+
+[Search](./algodata-203-search/)
+- [ ] Linear Search
+- [ ] Binary Search
+- [ ] Interpolation Search
+
+
 ## Module 203: Hashing
 If you have a really large amount of data that you need to find something in, or you need to do it very frequently, searching through a Phone Book won't cut it anymore. You need something like bookmarks, which allows you to find the correct page right away.
 
 This is, what the use of Hashes and Hash Tables can accomplish. It comes with some extra work and computational overhead, but it allows instantaneously finding something in a collection.
+
+[Hashing](./algodata-205-hashing/)
+- [ ] Hashing
+- [ ] Hash Function
+- [ ] Hash Table
+- [ ] Hash Collision
+- [ ] Coalesced Hashing
+- [ ] HashSet
+- [ ] HashMap (Dictionary)
+
 ## Module 204: Pathfinding
 One of the most traditional problems that's solvable through algorithms is pathfinding. What's the closest connection between you and your work place? What public transport should you use to get to the movie theater?
 
 We'll first have a look at what Data Structure can hold all of the required information. Then, we'll look at a few naive approaches to this problem and where their limits lie, before then looking at an algorithm that can solve this problem in a semi-easy, successful way.
+
+[Graph](./algodata-206-graph/)
+- [ ] Vertex (Node)
+- [ ] Edge (Connection)
+- [ ] Adjacency (Neighbor)
+- [ ] Directed/Undirected
+- [ ] Path
+- [ ] Traversal
+- [ ] Depth-First
+- [ ] Breadth-First
+
+[Pathfinding](./algodata-207-pathfinding/)
+- [ ] Bug Algorithms
+- [ ] Simple Tracing
+- [ ] Robust Tracing
+- [ ] Occupancy Grid
+- [ ] Navigation Mesh
+- [ ] Depth-First Search
+- [ ] Iterative Deepening Depth-First (IDDF)
+- [ ] Bidirectional Search
+- [ ] Dijkstra
+- [ ] Best-First Search
+- [ ] A*
+- [ ] Steering
+
+
 ## Module 205: Game Trees
 Here, we'll apply our Pathfinding knowledge to other problems and find out that Game States can also be represented in a similar Data Structure as our Path Information. And that this in conclusion allows us to use algorithms to solve problems and find solutions in Game States. This knowledge will enable us to solve puzzles or write AI players for our Games.
+
+[Game Trees](./algodata-208-gametrees/)
+- [ ] Constraints
+- [ ] Classifications
+- [ ] Decision Tree
+- [ ] Minimax
+- [ ] Iterative Deepening Minimax
+- [ ] Heuristic Function
+- [ ] Transposition Table
+- [ ] Alpha-Beta Pruning
+- [ ] Expectiminimax
+- [ ] Monte-Carlo Search Tree
+
 
 ## Assignment
 The assignment for this course will be distributed through Google and GitHub Classroom at the end of this course.

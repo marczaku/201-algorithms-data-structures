@@ -77,7 +77,7 @@ Example:
 - operator: `>`
 - result: `5, 4, 3, 2, 1`
 
-## Selectionsort
+## Selection Sort
 Let's start with an example right away. Probably the most intuitive one:
 - find the smallest element in the list
 - swap the smallest element with the first
@@ -207,7 +207,7 @@ Remember the software crashing when calculating the sum of 1.000.000.000 Numbers
 
 Opposite: Out-of-place sorting algorithm.
 
-## Classifying Selectionsort
+## Classifying Selection Sort
 ### Unstable
 - consider: 133234
 - stable implementation is possible, but at extra costs (how?)
@@ -281,7 +281,7 @@ What if the list
 - almost sorted? 
 - sorted in reverse order?
 
-## Bubblesort
+## Bubble Sort
 - extremely naive sorting algorithm
   - mostly used as a bad example
 
@@ -333,7 +333,7 @@ end procedure return list
 - largest element is guaranteed to be at the correct position after first pass
 - can decrement sorting area size after every pass
 
-## Classifying Bubblesort
+## Classifying Bubble Sort
 ### Stable
 - better than Selectionsort
 ### In-place
@@ -449,18 +449,3 @@ I often like to think of programmers as problem-solvers. The techniques that we 
 - O(n log n)
 - version of Quicksort that falls back to other algorithm in bad cases
 - fastest known stable/unstable sorting algorithms
-
-## ToDo:
-- Create a `static class TurboSort`
-- Add a `BubbleSort(TurboList<int>)`-Method that sorts the List's elements using Bubblesort.
-- Add a `QuickSort(TurboList<int>)`-Method that sorts the List's elements using Quicksort.
-- Bonus: Add a `SelectionSort(TurboList<int>)`-Method that sorts the List using SelectionSort.
-- Compare the Speed of the algorithms using `System.Stopwatch`.
-  - For random, unsorted lists.
-  - For reverse-sorted lists.
-  - For sorted lists.
-- Write Tests for your Sorting-Algorithms!
-  - Do they sort successfully?
-  - Do they sort in-place or out-of-place?
-- Can you implement the Algorithms in a way that they work for your `TurboList`, but also a `System.Array`, a `System.Collections.Generic.List` and your `TurboLinkedList`? Hint: Use the Interface `System.Collections.Generic.IList<T>`
-- Can you make the Algorithm Generic? Hint: Use the Interface `IComparable` or `IComparer`
