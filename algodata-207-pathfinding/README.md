@@ -404,16 +404,14 @@ Depth First, as already mentioned in Graphs, will always follow one path through
 
 ```
 procedure find_path(start_node, end_node)
-   visited_nodes = [start_node]
    path = [start_node]
 
    while path not empty
       found_next_node = false
       for each neighbor in path.peek().getNeighbors()
-         if(neighbor in visited_nodes)
+         if(neighbor in path)
             continue
          else
-            visited_nodes.add(neighbor)
             path.push(neighbor)
             if(neighbor == end_node)   // NEW
                return path             // NEW
