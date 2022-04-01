@@ -525,7 +525,7 @@ procedure find_path(start_node, end_node)
    visited_nodes = [start_node]
    todo_paths = [[start_node]]    // CHANGE
 
-   while path not empty
+   while todo_paths not empty
       path = todo_paths.dequeue()
       current_node = path.peek()        // NEW
       for each neighbor in current_node.getNeighbors()
@@ -568,7 +568,7 @@ procedure find_path(start_node, end_node)
    todo_nodes = [start_node]        // REVERT
    predecessors = []=>[]            // NEW
 
-   while path not empty
+   while todo_nodes not empty
       current_node = todo_nodes.dequeue()
       for each neighbor in current_node.getNeighbors()
          if(neighbor == end_node)
@@ -654,7 +654,6 @@ procedure find_path(start_node, end_node)
             todo_nodes.enqueue(new_costs, neighbor)    // CHANGE!
          end if
       end for
-      visited_nodes.add(current_node)
    end while
 end procedure
 ```
