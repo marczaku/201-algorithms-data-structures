@@ -428,6 +428,34 @@ procedure find_path(start_node, end_node)
 end procedure
 ```
 
+EXERCISE: Above Code has a BUG. If the Map looks like this:
+- S = Start
+- G = Goal
+- # = Wall
+
+```
+_______
+|     |
+|     |
+|  G  |
+|  ###|
+|S    |
+_______
+```
+
+And your `GetAdjacent()`-Function returns the right grid cells first, then your Algorithm will most likely get stuck.
+
+Problem:
+- We only don't revisit Cells which are currently part of the Path here: `if(neighbor in path) continue`
+- This can lead to us going all the way to the right (X:4), Path:0>1>2>3>4
+- Then backtracking, since there is no more neighbours (X: 3), Path:0>1>2>3
+- And now, trying to go to neighbor at X:4 again, since it's not part of the current path
+
+Solution:
+- Keep Track of all visited nodes in a HashSet
+- Check for `if(neighbor in visitedNodes) continue` instead of `if(neighbor in path)`
+- Add Nodes to `visitedNodes` whenever you visit them, just after `if(neighbor == end_node){...}`
+
 There is a problem with this algorithm, though:
 
 ![image](https://user-images.githubusercontent.com/7360266/153077795-5a5dcd1b-45fe-4104-a75b-9b02a62e7612.png)
