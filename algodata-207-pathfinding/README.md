@@ -624,6 +624,18 @@ procedure build_path(predecessors, neighbor)
 end procedure
 ```
 
+Note, if your neighbor type is not nullable, you might have to do it like this:
+
+```
+   while true
+      path.push(neighbor)
+      if neighbor is not in predecessors
+         break
+      end if
+      neighbor = predecessors[neighbor]
+   end while
+```
+
 Pro: Complete. Optimal.
 Con: Complexity is polynomial (n^2). Memory usage is rather high.
 
@@ -664,19 +676,22 @@ procedure find_path(start_node, end_node)
    costs[start_node] = 0   // NEW
 
    while path not empty
-      current_node = todo_nodes.dequeue()
+      current_node, queue_costs = todo_nodes.dequeue()          // SMALL CHANGE
       if(current_node == end_node)
          return build_path(predecessors, current_node)
       end if
+      if(queue_costs > costs[current_node])             // OPTION A*
+         continue                                       // OPTION A*
+      end if                                            // OPTION A*
       for each connection in path.getNeighbors()
          neighbor = connection.next
          new_costs = costs[current_node] + connection.costs      // NEW
          if(neighbor in costs and costs[neighbor] <= new_costs)  // CHANGE
             continue
          else
-            if(neighbor in todo_nodes)
-               remove neighbor from todo_nodes
-            end if
+            if(neighbor in todo_nodes)                 // OPTION B*
+               remove neighbor from todo_nodes         // OPTION B*
+            end if                                     // OPTION B*
             predecessors[neighbor] = current_node
             costs[neighbor] = new_costs                // NEW
             todo_nodes.enqueue(new_costs, neighbor)    // CHANGE!
