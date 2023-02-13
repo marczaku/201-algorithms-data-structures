@@ -201,12 +201,12 @@ function minimax(node, maximizingPlayer) is
     if node is a terminal node then
         return WIN(1) or DRAW (0) or LOSE(-1) for node
     if maximizingPlayer then
-        value := −∞
+        value := -1
         for each child of node do
             value := max(value, minimax(child, FALSE))
         return value
     else (* minimizing player *)
-        value := +∞
+        value := +1
         for each child of node do
             value := min(value, minimax(child, TRUE))
         return value
@@ -216,7 +216,7 @@ end function
 
 ```
 (* Initial call *)
-minimax(origin, depth, TRUE)
+minimax(origin, TRUE)
 ```
 
 Here's a picture of the algorithm's result assuming that each decision results in a final score for both players:
