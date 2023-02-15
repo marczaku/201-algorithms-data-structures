@@ -677,21 +677,21 @@ procedure find_path(start_node, end_node)
 
    while path not empty
       current_node, queue_costs = todo_nodes.dequeue()          // SMALL CHANGE
-      if(current_node == end_node)
-         return build_path(predecessors, current_node)
-      end if
-      if(queue_costs > costs[current_node])             // OPTION A*
-         continue                                       // OPTION A*
-      end if                                            // OPTION A*
+      if(current_node == end_node)                         // THIS HAS MOVED UP!
+         return build_path(predecessors, current_node)     // THIS HAS MOVED UP!
+      end if                                               // THIS HAS MOVED UP!
+      if(queue_costs > costs[current_node])             // OPTION A* (IMPLEMENT THIS, IF POSSIBLE, ELSE OPTION B)
+         continue                                       // OPTION A* (IMPLEMENT THIS, IF POSSIBLE, ELSE OPTION B)
+      end if                                            // OPTION A* (IMPLEMENT THIS, IF POSSIBLE, ELSE OPTION B)
       for each connection in path.getNeighbors()
          neighbor = connection.next
          new_costs = costs[current_node] + connection.costs      // NEW
          if(neighbor in costs and costs[neighbor] <= new_costs)  // CHANGE
             continue
          else
-            if(neighbor in todo_nodes)                 // OPTION B*
-               remove neighbor from todo_nodes         // OPTION B*
-            end if                                     // OPTION B*
+            if(neighbor in todo_nodes)                 // OPTION B* (IMPLEMENT THIS, IF OPTION A WAS NOT POSSIBLE)
+               remove neighbor from todo_nodes         // OPTION B* (IMPLEMENT THIS, IF OPTION A WAS NOT POSSIBLE)
+            end if                                     // OPTION B* (IMPLEMENT THIS, IF OPTION A WAS NOT POSSIBLE)
             predecessors[neighbor] = current_node
             costs[neighbor] = new_costs                // NEW
             todo_nodes.enqueue(new_costs, neighbor)    // CHANGE!
